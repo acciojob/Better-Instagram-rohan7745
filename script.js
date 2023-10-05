@@ -1,30 +1,43 @@
-//your code here
-document.addEventListener("DOMContentLoaded", function () {
-    let draggedDiv = null;
+const container = document.getElementById("container");
+const images = document.getElementsByTagName("img");
 
-    document.addEventListener("dragstart", function (event) {
-        if (event.target.classList.contains("draggable")) {
-            draggedDiv = event.target;
-        }
-    });
+/**
+ *
+ * For every image
+ * 1. dragstart event => to set it's id in the dataTransfer.
+ *
+ * 2. dragover event => as every image is a dropzone we need to prevent the default behaviour in this dragover event to make it act like a drop container.
+ *
+ * 3. drop => to execute the swapping logic.
+ */
 
-    document.addEventListener("dragover", function (event) {
-        event.preventDefault();
-    });
+function onDragStart(event) {
+  // event.target represents the dragged element
+  event.dataTransfer.setData("sourceId", event.target.id);
+}
 
-    document.addEventListener("drop", function (event) {
-        event.preventDefault();
+function onDragOver(event) {
+  event.preventDefault();
+}
 
-        if (draggedDiv && event.target.classList.contains("draggable")) {
-            const targetDiv = event.target;
+function onDrop(event) {
+  // event.target => on which we drop some element
+  const sourceId = event.dataTransfer.getData("sourceId");
+  const sourceElement = document.getElementById(sourceId);
+  const destElement = event.target;
 
-            // Swap the background images
-            const tempBackground = draggedDiv.style.backgroundImage;
-            draggedDiv.style.backgroundImage = targetDiv.style.backgroundImage;
-            targetDiv.style.backgroundImage = tempBackground;
-        }
+  const sourceNextElement = sourceElement.nextElementSibling;
+  const destNextElement = destElement.nextElementSibling;
 
-        draggedDiv = null;
-    });
-});
+  // adding destElement in front of sourceNextElement
+  container.insertBefore(destElement, sourceNextElement);
 
+  // adding sourceElement in front of destNextElement
+  container.insertBefore(sourceElement, destNextElement);
+}
+
+for (let i = 0; i < images.length; i++) {
+  images[i].addEventListener("dragstart", onDragStart);
+  images[i].addEventListener("dragover", onDragOver);
+  images[i].addEventListener("drop", onDrop);
+}
